@@ -2,7 +2,7 @@ import os
 
 
 def load_spelling_data(min_word_len, max_word_len):
-    cmu_data = load_data("cmudict-0.7b", "ISO-8859-1").split("\n")
+    cmu_data = load_data("data/cmudict-0.7b", "ISO-8859-1").split("\n")
 
     words = list()
     pronunciations = list()
@@ -28,14 +28,23 @@ def extract_symbol_vocab(data):
 
     return int_to_vocab, vocab_to_int
 
-def load_sort_letter_data():
-    source_path = 'data/letters_source.txt'
-    target_path = 'data/letters_target.txt'
-
+def load_letter_data(source_path, target_path):
     source_sentences = load_data(source_path, 'utf-8').split("\n")
     target_sentences = load_data(target_path, 'utf-8').split("\n")
 
     return source_sentences, target_sentences
+
+def load_sort_letter_data():
+    source_path = 'data/letters_source_sort.txt'
+    target_path = 'data/letters_target_sort.txt'
+
+    return load_letter_data(source_path, target_path)
+
+def load_echo_letter_data():
+    source_path = 'data/letters_source_echo.txt'
+    target_path = 'data/letters_target_echo.txt'
+
+    return load_letter_data(source_path, target_path)
 
 def load_data(path, encode):
     input_file = os.path.join(path)

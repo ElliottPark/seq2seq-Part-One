@@ -8,7 +8,7 @@ from distutils.version import LooseVersion
 import tensorflow as tf
 from tensorflow.python.layers.core import Dense
 
-# This is confirmed to work in a virtual environment (virtualenv) using python3.5.2 and tenorflow 1.3
+# This is confirmed to work in a virtual environment (virtualenv) using python 3.5.2 and tenorflow 1.3
 
 
 # Make sure you'te using a modern version of tensorflow
@@ -16,7 +16,7 @@ assert LooseVersion(tf.__version__) >= LooseVersion('1.1'), 'Please use TensorFl
 print('TensorFlow Version: {}'.format(tf.__version__))
 
 
-run_sort = False
+run_type = "sort"
 
 epochs = None
 batch_size = None
@@ -29,10 +29,10 @@ learning_rate = None
 source_sequences = None
 target_sequences = None
 max_seq_len = None
-
+display_step = None
 input_sentence = None
 
-if run_sort:
+if run_type == "sort":
   input_sentence = list('zbxayc')
   source_sequences, target_sequences = helper.load_sort_letter_data()
   epochs = 60
@@ -43,7 +43,8 @@ if run_sort:
   decoding_embedding_size = 15
   learning_rate = 0.001
   max_seq_len = 7
-else:
+  display_step = 20
+elif run_type == "spelling":
   input_sentence = ["B", "ER1", "G", "ER0"] # burger
   max_seq_len = 15
   min_seq_len = 4
@@ -55,6 +56,19 @@ else:
   encoding_embedding_size = 15
   decoding_embedding_size = 15
   learning_rate = 0.001
+  display_step = 40
+else:
+  input_sentence = list('hello')
+  source_sequences, target_sequences = helper.load_echo_letter_data()
+  epochs = 40
+  batch_size = 128
+  rnn_size = 50
+  num_layers = 2
+  encoding_embedding_size = 15
+  decoding_embedding_size = 15
+  learning_rate = 0.001
+  max_seq_len = 7
+  display_step = 20
 
 # Build int2symbol and symbol2int dicts
 source_int_to_symbol, source_symbol_to_int = helper.extract_symbol_vocab(source_sequences)
@@ -282,9 +296,6 @@ valid_target = target_symbol_ids[:batch_size]
                            target_symbol_to_int['<PAD>']))
 
 
-# Check training loss after every 20 batches
-display_step = 40
-
 checkpoint = "best_model.ckpt" 
 with tf.Session(graph=train_graph) as sess:
     sess.run(tf.global_variables_initializer())
@@ -373,7 +384,7 @@ print('\nSource')
 print('  Word Ids:    {}'.format([i for i in input]))
 print('  Input Words: {}'.format(" ".join([source_int_to_symbol[i] for i in input])))
 
-print('\nTarget')
+print('\nPrediction')
 print('  Word Ids:       {}'.format([i for i in answer_logits if i != pad]))
 print('  Response Words: {}'.format(" ".join([target_int_to_symbol[i] for i in answer_logits if i != pad])))
 
