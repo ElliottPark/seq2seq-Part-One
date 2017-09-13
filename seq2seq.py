@@ -16,7 +16,7 @@ assert LooseVersion(tf.__version__) >= LooseVersion('1.1'), 'Please use TensorFl
 print('TensorFlow Version: {}'.format(tf.__version__))
 
 
-run_type = "sort"
+run_type = "blunt_add"
 
 epochs = None
 batch_size = None
@@ -42,21 +42,60 @@ if run_type == "sort":
   encoding_embedding_size = 15
   decoding_embedding_size = 15
   learning_rate = 0.001
-  max_seq_len = 7
+  max_seq_len = 6
   display_step = 20
 elif run_type == "spelling":
+  # 40 epochs, 50 rnn_size, 3 layers, 0.01 learning_rate:
+  # Epoch  40/40 Batch  960/981 - Loss:  0.516  - Validation loss:  0.849
+  # spelled burger as ferger
+  # Note: This takes a long time to train on a CPU
   input_sentence = ["B", "ER1", "G", "ER0"] # burger
   max_seq_len = 15
   min_seq_len = 4
   source_sequences, target_sequences = helper.load_spelling_data(min_seq_len, max_seq_len)
-  epochs = 20
+  epochs = 40
   batch_size = 128
   rnn_size = 50
-  num_layers = 2
+  num_layers = 3
   encoding_embedding_size = 15
   decoding_embedding_size = 15
   learning_rate = 0.001
   display_step = 40
+elif run_type == "blunt_add":
+  # Set up the same way as the interleave_add network, with 80 epochs, 80 rnn_size, 3 layers:
+  # Epoch  80/80 Batch   60/77 - Loss:  0.725  - Validation loss:  0.726
+  input_sentence = list('102+203')
+  source_sequences, target_sequences = helper.load_blunt_addition()
+  epochs = 80
+  batch_size = 128
+  rnn_size = 80
+  num_layers = 3
+  encoding_embedding_size = 15
+  decoding_embedding_size = 15
+  learning_rate = 0.001
+  max_seq_len = 7
+  display_step = 20
+elif run_type == "interleave_add":
+  # Numbers are interleaved, e.g. 13 + 24 becomes 1234, then reversed to 4321
+  # 80 epochs, 80 rnn_size, 3 layers:
+  #   Epoch  80/80 Batch   60/77 - Loss:  0.005  - Validation loss:  0.005
+
+  # 40 epochs, 80 rnn_size, 2 layers:
+  #   Epoch  40/40 Batch   60/77 - Loss:  0.275  - Validation loss:  0.236
+
+  # It starts to perform really well around 50 epochs
+  # It'd be worthwhile to try altering more hyperparameters
+  input_sentence = list('120023'[::-1])
+  source_sequences, target_sequences = helper.load_interleaved_addition()
+  epochs = 80
+  batch_size = 128
+  rnn_size = 80
+  num_layers = 3
+  encoding_embedding_size = 15
+  decoding_embedding_size = 15
+  learning_rate = 0.001
+  max_seq_len = 6
+  display_step = 20
 else:
   input_sentence = list('hello')
   source_sequences, target_sequences = helper.load_echo_letter_data()

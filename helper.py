@@ -20,6 +20,26 @@ def load_spelling_data(min_word_len, max_word_len):
     return pronunciations, words
       
 
+def load_blunt_addition():
+    add_data = load_data('data/addition.dat', 'utf-8').split('\n')
+    inputs = list()
+    targets = list()
+    for l in add_data:
+        i, t = l.split("  ")
+        inputs.append(i)
+        targets.append(t)
+    return inputs, targets
+
+def load_interleaved_addition():
+    add_data = load_data('data/addition_interleave.dat', 'utf-8').split('\n')
+    inputs = list()
+    targets = list()
+    for l in add_data:
+        i, t = l.split("  ")
+        inputs.append(i[::-1])
+        targets.append(t)
+    return inputs, targets
+
 def extract_symbol_vocab(data):
     special_words = ['<PAD>', '<UNK>', '<GO>',  '<EOS>']
     set_words = set([character for line in data for character in line])
